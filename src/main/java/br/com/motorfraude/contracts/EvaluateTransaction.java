@@ -2,7 +2,6 @@ package br.com.motorfraude.contracts;
 
 import java.time.Instant;
 
-/** Comando receiver -> motor (transaction-commands.v1). Contrato: schemas/evaluate-transaction.v1.json. */
 public record EvaluateTransaction(
         int schemaVersion,
         String transactionId,

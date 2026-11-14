@@ -16,7 +16,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.databind.JsonNode;
 
-/** T015 — ida e volta record → JSON → validação → record, para cada contrato, e comportamento do JsonCodec. */
 class ContractRoundTripTest {
 
     static Stream<Arguments> contractTypes() {
@@ -61,8 +60,6 @@ class ContractRoundTripTest {
 
         assertThat(JsonCodec.toJson(JsonCodec.fromJson(text, type))).isEqualTo(text);
     }
-
-    // ---------------------------------------------------------------- JsonCodec
 
     @Test
     @DisplayName("dinheiro sai como inteiro em centavos, nunca como decimal")
@@ -114,8 +111,6 @@ class ContractRoundTripTest {
 
         ContractAssertions.assertProduces("customer-profile.v1", profile);
     }
-
-    // ---------------------------------------------------------------- ContractAssertions
 
     @Test
     @DisplayName("assertProduces aceita record, JsonNode e texto válidos")

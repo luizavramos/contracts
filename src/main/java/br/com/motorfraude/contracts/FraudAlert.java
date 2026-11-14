@@ -3,7 +3,6 @@ package br.com.motorfraude.contracts;
 import java.time.Instant;
 import java.util.List;
 
-/** Alerta MEDIUM/HIGH, motor -> notificações (fraud-alerts.v1). alertId = UUIDv5(transactionId). */
 public record FraudAlert(
         String alertId,
         String transactionId,

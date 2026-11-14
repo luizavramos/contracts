@@ -12,12 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import tools.jackson.databind.JsonNode;
 
-/**
- * Validação das mensagens contra os JSON Schemas versionados em {@code /schemas}.
- *
- * <p>Em produção só o receiver valida (fronteira HTTP). Os produtores internos validam nos testes de contrato
- * ({@code ContractAssertions}); consumidores leem de forma tolerante.
- */
 public final class Schemas {
 
     private static final List<String> NAMES = List.of(
@@ -34,14 +28,10 @@ public final class Schemas {
 
     private Schemas() {}
 
-    /** Nomes dos contratos conhecidos, sem extensão (ex.: {@code evaluate-transaction.v1}). */
     public static List<String> names() {
         return NAMES;
     }
 
-    /**
-     * @throws IllegalArgumentException se o nome não for de um contrato conhecido (erro de programação)
-     */
     public static ValidationResult validate(String schemaName, JsonNode message) {
         var errors = schema(schemaName).validate(message).stream().map(e -> e.getMessage()).toList();
         return new ValidationResult(errors);

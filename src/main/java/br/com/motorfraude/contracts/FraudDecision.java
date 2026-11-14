@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-/** Toda decisão do motor, com ou sem alerta (fraud-decisions.v1). features: escalares curtos, sem dado pessoal. */
 public record FraudDecision(
         String decisionId,
         String transactionId,

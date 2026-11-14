@@ -6,16 +6,6 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
-/**
- * Codec JSON único dos contratos (Jackson 3).
- *
- * <ul>
- *   <li>Leitura tolerante a campos novos ({@code FAIL_ON_UNKNOWN_PROPERTIES=false}): consumidores não quebram com
- *       evolução compatível do contrato.
- *   <li>Escrita: campos nulos omitidos, instantes em ISO-8601 UTC, mapas ordenados por chave (saída estável).
- *   <li>Dinheiro é {@code long} (centavos): nunca sai como decimal.
- * </ul>
- */
 public final class JsonCodec {
 
     private static final JsonMapper MAPPER = JsonMapper.builder()

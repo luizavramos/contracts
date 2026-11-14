@@ -18,10 +18,6 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-/**
- * T010 — todo contrato tem ao menos um exemplo válido e vários inválidos (SC-002).
- * Os schemas são estritos (additionalProperties=false em todos os níveis) e dinheiro só aceita inteiro em centavos.
- */
 class SchemasTest {
 
     static final List<String> CONTRACTS = List.of(
@@ -62,8 +58,6 @@ class SchemasTest {
         return new Case(contract, why, m);
     }
 
-    // ---------------------------------------------------------------- exemplos oficiais
-
     @ParameterizedTest(name = "exemplo oficial de {0} é válido")
     @MethodSource("contracts")
     void exemploOficialPassa(String contract) {
@@ -90,8 +84,6 @@ class SchemasTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("nao-existe.v1");
     }
-
-    // ---------------------------------------------------------------- H2.2 e H2.3: dinheiro e dado pessoal
 
     @Test
     @DisplayName("H2.2: amount.value decimal (10.5) falha")
@@ -144,8 +136,6 @@ class SchemasTest {
         assertThat(Schemas.validate("evaluate-transaction.v1", tx).valid()).isFalse();
     }
 
-    // ---------------------------------------------------------------- variações válidas
-
     @ParameterizedTest(name = "{0}: {1}")
     @MethodSource("validVariants")
     void variacoesValidasPassam(String contract, String why, Consumer<ObjectNode> mutation) {
@@ -179,8 +169,6 @@ class SchemasTest {
                 .map(c -> c.args());
     }
 
-    // ---------------------------------------------------------------- variações inválidas
-
     @ParameterizedTest(name = "{0}: {1} falha")
     @MethodSource("invalidVariants")
     void variacoesInvalidasFalham(String contract, String why, Consumer<ObjectNode> mutation) {
@@ -195,7 +183,6 @@ class SchemasTest {
 
     static Stream<Arguments> invalidVariants() {
         return Stream.of(
-                // evaluate-transaction
                 valid("evaluate-transaction.v1", "valor zero", n -> obj(n, "/amount").put("value", 0)),
                 valid("evaluate-transaction.v1", "valor negativo", n -> obj(n, "/amount").put("value", -100)),
                 valid("evaluate-transaction.v1", "valor como texto", n -> obj(n, "/amount").put("value", "15000")),
@@ -214,7 +201,6 @@ class SchemasTest {
                 valid("evaluate-transaction.v1", "instante sem fuso", n -> n.put("occurredAt", "2026-11-13T21:30:00")),
                 valid("evaluate-transaction.v1", "schemaVersion 2", n -> n.put("schemaVersion", 2)),
                 valid("evaluate-transaction.v1", "e-mail em campo extra", n -> n.put("email", "maria@exemplo.com")),
-                // customer-profile
                 valid("customer-profile.v1", "coluna de dado pessoal vazada (email)", n -> n.put("email", "maria@exemplo.com")),
                 valid("customer-profile.v1", "coluna de dado pessoal vazada (cpf)", n -> n.put("cpf", "123.456.789-09")),
                 valid("customer-profile.v1", "11 dispositivos (máximo 10)", n -> {
@@ -226,19 +212,16 @@ class SchemasTest {
                 valid("customer-profile.v1", "segmento desconhecido", n -> n.put("segment", "PX")),
                 valid("customer-profile.v1", "sem updatedAt", n -> n.remove("updatedAt")),
                 valid("customer-profile.v1", "sem accountId", n -> n.remove("accountId")),
-                // transaction-history-record
                 valid("transaction-history-record.v1", "beneficiário em texto livre", n -> n.put("counterpartyToken", "Joao da Silva")),
                 valid("transaction-history-record.v1", "nome do pagador vazado", n -> n.put("payer_name", "Maria")),
                 valid("transaction-history-record.v1", "cpf do pagador vazado", n -> n.put("payer_cpf", "123.456.789-09")),
                 valid("transaction-history-record.v1", "valor decimal", n -> obj(n, "/amount").put("value", 89.9)),
                 valid("transaction-history-record.v1", "sem occurredAt", n -> n.remove("occurredAt")),
-                // blocklist-entry
                 valid("blocklist-entry.v1", "tipo de entidade desconhecido", n -> n.put("entityType", "PESSOA")),
                 valid("blocklist-entry.v1", "token que não é de conta nem de dispositivo", n -> n.put("entityToken", "123.456.789-09")),
                 valid("blocklist-entry.v1", "motivo em texto livre", n -> n.put("reason", "Maria Silva foi fraudadora")),
                 valid("blocklist-entry.v1", "sem listedAt", n -> n.remove("listedAt")),
                 valid("blocklist-entry.v1", "campo extra", n -> n.put("owner", "Maria")),
-                // fraud-decision
                 valid("fraud-decision.v1", "decisionId que não é UUID", n -> n.put("decisionId", "decisao-1")),
                 valid("fraud-decision.v1", "decisão desconhecida", n -> n.put("decision", "BLOQUEAR")),
                 valid("fraud-decision.v1", "severidade desconhecida", n -> n.put("severity", "CRITICAL")),
@@ -253,7 +236,6 @@ class SchemasTest {
                 valid("fraud-decision.v1", "campo extra na regra disparada", n -> obj(n, "/triggeredRules/0").put("ownerEmail", "a@b.com")),
                 valid("fraud-decision.v1", "campo extra na raiz", n -> n.put("customerName", "Maria")),
                 valid("fraud-decision.v1", "sem features", n -> n.remove("features")),
-                // fraud-alert
                 valid("fraud-alert.v1", "alertId que não é UUID", n -> n.put("alertId", "alerta-1")),
                 valid("fraud-alert.v1", "alertId UUID v4 (precisa ser v5 de transactionId)", n -> n.put("alertId", "7c9e6679-7425-4a1e-b2f1-3f1d8e6a9c10")),
                 valid("fraud-alert.v1", "severidade NONE (alerta só MEDIUM ou HIGH)", n -> n.put("severity", "NONE")),
@@ -261,7 +243,6 @@ class SchemasTest {
                 valid("fraud-alert.v1", "traceId inválido", n -> n.put("traceId", "trace-1")),
                 valid("fraud-alert.v1", "sem detectedAt", n -> n.remove("detectedAt")),
                 valid("fraud-alert.v1", "campo extra", n -> n.put("phone", "+5511999990000")),
-                // rule-set
                 valid("rule-set.v1", "versão zero", n -> n.put("version", 0)),
                 valid("rule-set.v1", "sem scoring", n -> n.remove("scoring")),
                 valid("rule-set.v1", "limiar zero", n -> obj(n, "/scoring").put("mediumThreshold", 0)),
